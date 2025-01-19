@@ -1,0 +1,11 @@
+[33mcommit e3135b81154535eda249b55c4871c750fd68c10f[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mproduction[m[33m, [m[1;31morigin/production[m[33m)[m
+Author: ArchiLH <jesus.libra45@gmail.com>
+Date:   Fri Jan 17 21:53:17 2025 -0500
+
+    Mensaje de commit sobre los cambios
+
+[33mcommit 18fd02a60088eb331eae1bf8831b301bda9327c6[m[33m ([m[1;31morigin/dev-Alexander[m[33m)[m
+Author: ArchiLH <jesus.libra45@gmail.com>
+Date:   Fri Jan 17 21:35:52 2025 -0500
+
+    add get user and put user
