@@ -1,37 +1,25 @@
 package BackendEcommerce.mundoMagico.Auth;
 
-import BackendEcommerce.mundoMagico.Exception.StripeException;
-import BackendEcommerce.mundoMagico.Service.ProductoService;
-import BackendEcommerce.mundoMagico.User.Producto.Producto;
-import BackendEcommerce.mundoMagico.User.Stripe.PaymentRequest;
 import com.stripe.Stripe;
-import com.stripe.model.PaymentIntent;
-import com.stripe.param.PaymentIntentCreateParams;
+import com.stripe.exception.StripeException;
+import com.stripe.model.checkout.Session;
+import com.stripe.param.checkout.SessionCreateParams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
-
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
 public class StripeController {
 
     private static final Logger logger = LoggerFactory.getLogger(StripeController.class);
-    private final ProductoService productoService;
 
     static {
-        // Configura tu clave secreta de Stripe desde una variable de entorno
-        String stripeApiKey = System.getenv("sk_test_51QTBiWGVrTx2ekztpDBHi32qfXdiehHPLpme6ldSCzd9VHaHVpSzegDOubQsj1l2P5gIzeF5NIaeWKsO7c4w79dn00Dlprg5uX");
+        // Clave secreta de Stripe
+        String stripeApiKey = System.getenv("sk_test_51QTBiWGVrTx2ekztpDBHi32qfXdiehHPLpme6ldSCzd9VHaHVpSzegDOubQsj1l2P5gIzeF5NIaeWKsO7c4w79dn00Dlprg5uX"); // Usa una variable de entorno
         if (stripeApiKey == null || stripeApiKey.isEmpty()) {
             logger.error("Clave secreta de Stripe no configurada. Verifica tu entorno.");
         } else {
@@ -40,54 +28,38 @@ public class StripeController {
         }
     }
 
-
-
-
-    // Constructor
-    public StripeController(ProductoService productoService) {
-        this.productoService = productoService;
-    }
-
-    // Crear el PaymentIntent (como ya lo tenías)
-    @PostMapping("/create-payment-intent")
-    public ResponseEntity<Map<String, String>> createPaymentIntent(@RequestBody Map<String, Object> body) {
-        List<Map<String, Object>> products = (List<Map<String, Object>>) body.get("products");
-        if (products == null || products.isEmpty()) {
-            return ResponseEntity.badRequest().body(Collections.singletonMap("error", "Los productos son requeridos"));
-        }
-
-        double totalPriceInSoles = 0;
-
-        // Procesar cada producto y su cantidad
-        for (Map<String, Object> productData : products) {
-            Integer productId = (Integer) productData.get("id");
-            Integer quantity = (Integer) productData.get("quantity");
-
-            Producto producto = productoService.getProductoById(productId);
-            if (producto == null) {
-                return ResponseEntity.badRequest().body(Collections.singletonMap("error", "Producto no encontrado"));
-            }
-
-            totalPriceInSoles += producto.getPrice() * (quantity != null ? quantity : 1);
-        }
-
-        long amountInCents = (long) (totalPriceInSoles * 100);
-
+    @PostMapping("/create-checkout-session")
+    public ResponseEntity<?> createCheckoutSession(@RequestBody Map<String, Object> payload) {
         try {
-            PaymentIntentCreateParams params = PaymentIntentCreateParams.builder()
-                    .setAmount(amountInCents)
-                    .setCurrency("PEN")
+            List<Map<String, Object>> products = (List<Map<String, Object>>) payload.get("products");
+
+            // Construcción de los elementos para la sesión de Stripe
+            SessionCreateParams.LineItem[] lineItems = products.stream().map(product -> {
+                String priceId = (String) product.get("stripePriceId");
+                Integer quantity = (Integer) product.get("quantity");
+
+                return SessionCreateParams.LineItem.builder()
+                        .setPrice(priceId)
+                        .setQuantity(Long.valueOf(quantity))
+                        .build();
+            }).toArray(SessionCreateParams.LineItem[]::new);
+
+            // Parámetros de la sesión
+            SessionCreateParams params = SessionCreateParams.builder()
+                    .setMode(SessionCreateParams.Mode.PAYMENT)
+                    .setSuccessUrl("http://localhost:5173/success")
+                    .setCancelUrl("http://localhost:5173/cancel")
+                    .addAllLineItem(List.of(lineItems))
                     .build();
 
-            PaymentIntent paymentIntent = PaymentIntent.create(params);
+            // Creación de la sesión de Stripe
+            Session session = Session.create(params);
+            return ResponseEntity.ok(Map.of("url", session.getUrl()));
 
-            Map<String, String> response = new HashMap<>();
-            response.put("clientSecret", paymentIntent.getClientSecret());
-
-            return ResponseEntity.ok(response);
+        } catch (StripeException e) {
+            return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Collections.singletonMap("error", "Error al procesar el pago con Stripe"));
+            return ResponseEntity.status(400).body(Map.of("error", "Error procesando la solicitud: " + e.getMessage()));
         }
     }
 }
