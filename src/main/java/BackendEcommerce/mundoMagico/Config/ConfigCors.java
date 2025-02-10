@@ -16,7 +16,7 @@ public class    ConfigCors {
             public void addCorsMappings(@NonNull CorsRegistry registry) {
                 registry.addMapping("/**")  // Permitir CORS en todos los endpoints
                         .allowedOrigins("http://localhost:5173") // Asegúrate de que no haya espacios
-                        .allowedMethods("GET", "POST", "PUT", "DELETE")
+                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedHeaders("*")
                         .allowCredentials(true); // Si necesitas enviar cookies y autenticar
             }

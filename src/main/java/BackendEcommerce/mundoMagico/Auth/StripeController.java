@@ -51,41 +51,41 @@ public class StripeController {
     // Crear el PaymentIntent (como ya lo tenías)
     @PostMapping("/create-payment-intent")
     public ResponseEntity<Map<String, String>> createPaymentIntent(@RequestBody Map<String, Object> body) {
-        List<Integer> productIds = (List<Integer>) body.get("productId");
-        if (productIds == null || productIds.isEmpty()) {
-            return ResponseEntity.badRequest().body(Collections.singletonMap("error", "Product IDs are required"));
+        List<Map<String, Object>> products = (List<Map<String, Object>>) body.get("products");
+        if (products == null || products.isEmpty()) {
+            return ResponseEntity.badRequest().body(Collections.singletonMap("error", "Los productos son requeridos"));
         }
 
-        // Suponiendo que tienes un servicio para obtener los productos por ID
-        List<Producto> productos = productoService.getProductosByIds(productIds);
-        if (productos.isEmpty()) {
-            return ResponseEntity.badRequest().body(Collections.singletonMap("error", "Products not found"));
+        double totalPriceInSoles = 0;
+
+        // Procesar cada producto y su cantidad
+        for (Map<String, Object> productData : products) {
+            Integer productId = (Integer) productData.get("id");
+            Integer quantity = (Integer) productData.get("quantity");
+
+            Producto producto = productoService.getProductoById(productId);
+            if (producto == null) {
+                return ResponseEntity.badRequest().body(Collections.singletonMap("error", "Producto no encontrado"));
+            }
+
+            totalPriceInSoles += producto.getPrice() * (quantity != null ? quantity : 1);
         }
 
-        // Precio en soles
-        double priceInSoles = productos.stream().mapToDouble(Producto::getPrice).sum();
-        // Tipo de cambio de Sol a USD (ajustar según sea necesario)
-        double conversionRate = 0.27;
-        // Convertimos el precio a centavos de USD
-        long amountInCents = (long) (priceInSoles * conversionRate * 100);
+        long amountInCents = (long) (totalPriceInSoles * 100);
 
         try {
-            // Creamos el PaymentIntent en Stripe
             PaymentIntentCreateParams params = PaymentIntentCreateParams.builder()
                     .setAmount(amountInCents)
-                    .setCurrency("PEN") // Definir la moneda como USD
-                    .putMetadata("productIds", productIds.toString()) // Agregar metadata
+                    .setCurrency("PEN")
                     .build();
 
             PaymentIntent paymentIntent = PaymentIntent.create(params);
 
-            // Preparamos la respuesta con el client secret de Stripe
             Map<String, String> response = new HashMap<>();
             response.put("clientSecret", paymentIntent.getClientSecret());
 
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            // Si ocurre un error, respondemos con un error 500
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Collections.singletonMap("error", "Error al procesar el pago con Stripe"));
         }

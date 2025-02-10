@@ -34,4 +34,13 @@ public class ProductoController {
         }
         return producto;
     }
+    @GetMapping("/productos/por-ids")
+    public List<Producto> obtenerProductosPorIds(@RequestParam List<Integer> ids) {
+        if (ids == null || ids.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Se requieren los IDs de los productos");
+        }
+        return productoService.obtenerProductosPorIds(ids);
+    }
+
+
 }

@@ -28,5 +28,8 @@ public class ProductoService {
     public List<Producto> getProductosByIds(List<Integer> productIds) {
         return productoRepository.findAllById(productIds);  // Utilizando el método de JPA para obtener productos por sus IDs
     }
+    public List<Producto> obtenerProductosPorIds(List<Integer> ids) {
+        return productoRepository.findAllById(ids);
+    }
 
 }
