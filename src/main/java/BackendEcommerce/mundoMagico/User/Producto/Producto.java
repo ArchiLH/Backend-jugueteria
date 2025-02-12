@@ -19,6 +19,6 @@ public class Producto {
     private String categoria;
     private Boolean favoritos;
     private String descripcion;
-    private String  stripe_product_id;
-    private String   stripe_price_id;
+    private String stripe_product_id;
+    private String stripe_price_id;
 }
