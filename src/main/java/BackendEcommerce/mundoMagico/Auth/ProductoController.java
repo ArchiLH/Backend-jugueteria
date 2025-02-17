@@ -27,20 +27,20 @@ public class ProductoController {
     }
 
     @GetMapping("/productos/{id}")
-    public Producto getProductoById(@PathVariable Integer id) {
+    public ResponseEntity<Producto> getProductoById(@PathVariable Long id) { // Cambiar Integer a Long
         Producto producto = productoService.getProductoById(id);
         if (producto == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Producto no encontrado");
         }
-        return producto;
+        return ResponseEntity.ok(producto);
     }
+
     @GetMapping("/productos/por-ids")
-    public List<Producto> obtenerProductosPorIds(@RequestParam List<Integer> ids) {
+    public ResponseEntity<List<Producto>> obtenerProductosPorIds(@RequestParam List<Long> ids) { // Cambiar Integer a Long
         if (ids == null || ids.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Se requieren los IDs de los productos");
         }
-        return productoService.obtenerProductosPorIds(ids);
+        return ResponseEntity.ok(productoService.obtenerProductosPorIds(ids));
     }
-
-
 }
+
