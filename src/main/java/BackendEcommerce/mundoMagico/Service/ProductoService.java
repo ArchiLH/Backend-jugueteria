@@ -3,6 +3,8 @@ package BackendEcommerce.mundoMagico.Service;
 import BackendEcommerce.mundoMagico.Repository.ProductoRepository;
 import BackendEcommerce.mundoMagico.User.Producto.Producto;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
@@ -16,6 +18,12 @@ public class ProductoService {
     @Autowired
     public ProductoService(ProductoRepository productoRepository) {
         this.productoRepository = productoRepository;
+    }
+
+    // método para obtener productos por categoría con límite
+    public List<Producto> obtenerProductosPorCategoria(String categoria, int limit) {
+        Pageable pageable = PageRequest.of(0, limit); // Crea un objeto Pageable para limitar a 'limit' resultados, empezando desde la página 0
+        return productoRepository.findByCategoria(categoria, pageable);
     }
 
     public List<Producto> obtenerTodosProductos() {

@@ -13,7 +13,8 @@ public interface ProductoRepository extends JpaRepository<Producto, Long> {
     // Verifica si existe un producto por nombre
     boolean existsByName(String name);
 
-
+    // Nuevo método para buscar productos por categoría y limitar resultados
+    List<Producto> findByCategoria(String categoria, org.springframework.data.domain.Pageable pageable);
 
 
 
