@@ -44,7 +44,7 @@ public class ProductoController {
     }
 
     @GetMapping("/productos/ofertas")
-    public ResponseEntity<List<Producto>> obtenerProductosOfertas(@RequestParam(value = "limit", defaultValue = "5") int limit) {
+    public ResponseEntity<List<Producto>> obtenerProductosOfertas(@RequestParam(value = "limit", defaultValue = "10") int limit) {
         String categoriaOfertas = "Ofertas"; // Define la categoría "Ofertas"
         List<Producto> productosOferta = productoService.obtenerProductosPorCategoria(categoriaOfertas, limit);
         return ResponseEntity.ok(productosOferta);
