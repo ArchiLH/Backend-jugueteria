@@ -27,7 +27,7 @@ public class SecurityConfig {
                         .disable())
                 .authorizeHttpRequests(authRequest ->
                         authRequest
-                                .requestMatchers("/auth/**","/api/**").permitAll() // Ajusta aquí
+                                .requestMatchers("/auth/**","/api/**","/webhook/stripe","/api/pedidos/**").permitAll() // Ajusta aquí
                                 .anyRequest().authenticated())
                 .sessionManagement(sessionManager ->
                         sessionManager

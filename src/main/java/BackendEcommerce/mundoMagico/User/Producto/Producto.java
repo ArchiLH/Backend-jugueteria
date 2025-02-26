@@ -14,11 +14,12 @@ public class Producto {
     private String name;
     private String brand;
     private Double price;
-    private Integer stock;
+    private Long stock;
     private String image;
     private String categoria;
     private Boolean favoritos;
     private String descripcion;
-    private String stripe_product_id;
-    private String stripe_price_id;
+    private String  stripe_product_id;
+    private String  stripe_price_id;
+
 }

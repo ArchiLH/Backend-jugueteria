@@ -30,7 +30,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	compileOnly 'org.projectlombok:lombok'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
-	runtimeOnly 'com.mysql:mysql-connector-j'
+	runtimeOnly 'org.postgresql:postgresql'
 	annotationProcessor 'org.projectlombok:lombok'
 	providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
@@ -52,6 +52,9 @@ dependencies {
 	// Testing Utilities
 	testImplementation 'org.mockito:mockito-core:4.11.0'
 	implementation 'com.paypal.sdk:rest-api-sdk:1.14.0'
+	implementation 'com.stripe:stripe-java:24.10.0'
+
+
 
 }
 

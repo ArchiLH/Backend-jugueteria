@@ -2,6 +2,7 @@ package BackendEcommerce.mundoMagico.Service;
 
 import BackendEcommerce.mundoMagico.Repository.ProductoRepository;
 import BackendEcommerce.mundoMagico.User.Producto.Producto;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -50,4 +51,19 @@ public class ProductoService {
                 .collect(Collectors.toList());
         return productoRepository.findAllById(longIds);
     }
+
+    @Transactional
+    public void reducirStock(Long productoId, Long cantidad) {
+        Producto producto = productoRepository.findById(productoId)
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado para ID: " + productoId));
+
+        if (producto.getStock() >= cantidad) {
+            producto.setStock(producto.getStock() - cantidad);
+            productoRepository.save(producto);
+            System.out.println("📉 Stock reducido en " + cantidad + " para el producto con ID: " + productoId);
+        } else {
+            throw new RuntimeException("Stock insuficiente para el producto con ID: " + productoId);
+        }
+    }
+
 }

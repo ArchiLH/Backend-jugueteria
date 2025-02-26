@@ -50,5 +50,14 @@ public class ProductoController {
         return ResponseEntity.ok(productosOferta);
     }
 
+    @PutMapping("/reducir-stock")
+    public ResponseEntity<String> reducirStock(@RequestParam Long productoId, @RequestParam Long cantidad) {
+        try {
+            productoService.reducirStock(productoId, cantidad);
+            return ResponseEntity.ok("📉 Stock reducido correctamente.");
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body("❌ Error al reducir el stock: " + e.getMessage());
+        }
+    }
 }
 
